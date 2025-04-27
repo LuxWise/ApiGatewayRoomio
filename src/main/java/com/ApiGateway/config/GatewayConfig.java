@@ -11,11 +11,17 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                // Ruta para User Service (Autenticación)
                 .route("auth_route", r -> r
                         .path("/api/auth/**")
                         .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/auth/${segment}"))
                         .uri("http://auth-service:8081"))
+
+                // Ruta para Hotel Service
+                .route("hotel_route", r -> r
+                        .path("/api/hotels/**")
+                        .filters(f -> f.stripPrefix(1))
+                        .uri("http://hotel-service:8082"))
+
                 .build();
     }
 }

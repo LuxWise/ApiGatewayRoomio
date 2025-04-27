@@ -5,6 +5,10 @@ spring:
   application:
     name: api-gateway
 
+
+  config:
+    import: "optional:file:./application.yml"
+
   cloud:
     gateway:
       routes:
@@ -15,18 +19,5 @@ spring:
           filters:
             - StripPrefix=1
 
-        - id: hotel-service
-          uri: lb://hotel-service
-          predicates:
-            - Path=/api/hotels/**
-          filters:
-            - StripPrefix=1
-            - name: JwtAuthFilter
-
-        - id: reservant-service
-          uri: lb://reservant-service
-          predicates:
-            - Path=/api/reservations/**
-          filters:
-            - StripPrefix=1
-            - name: JwtAuthFilter
+jwt:
+  secret: ${JWT_SECRET:defaultSecret}
