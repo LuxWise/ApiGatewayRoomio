@@ -13,9 +13,9 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri: lb://user-service
+          uri:  http://user-service:8081
           predicates:
-            - Path=/api/users/**
+            - Path=/api/auth/**
           filters:
             - StripPrefix=1
 
