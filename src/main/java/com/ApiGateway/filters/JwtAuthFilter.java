@@ -36,6 +36,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
 
             // 1. Excluir rutas públicas
             if (isPublicRoute(request)) {
+                System.out.println("Ruta pública, no se requiere autenticación: " + request.getPath());
                 return chain.filter(exchange);
             }
 

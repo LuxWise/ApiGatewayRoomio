@@ -13,14 +13,14 @@ public class GatewayConfig {
         return builder.routes()
                 .route("auth_route", r -> r
                         .path("/api/auth/**")
-                        .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/auth/${segment}"))
+                        .filters(f -> f.stripPrefix(1))
                         .uri("http://user-service:8081"))
 
                 // Ruta para Hotel Service
                 .route("hotel_route", r -> r
                         .path("/api/hotels/**")
                         .filters(f -> f.stripPrefix(1))
-                        .uri("http://hotel-service:8082"))
+                        .uri("http://hotel-service:8080"))
 
                 .build();
     }

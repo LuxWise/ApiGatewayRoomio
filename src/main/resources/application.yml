@@ -13,7 +13,7 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri:  http://user-service:8081
+          uri: http://user-service:8081
           predicates:
             - Path=/api/auth/**
           filters:

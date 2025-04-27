@@ -18,6 +18,8 @@ public class SecurityConfig {
                         .pathMatchers("/api/auth/**").permitAll()
                         .anyExchange().authenticated()
                 )
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable) // Opcional: Deshabilitar login form
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable) // Opcional: Deshabilitar basic auth
                 .build();
     }
 }
