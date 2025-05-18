@@ -1,11 +1,7 @@
 #!/bin/sh
 
-# Script original de Eficode (licencia MIT):
-# https://github.com/vishnubob/wait-for-it
-
-TIMEOUT=6000
+TIMEOUT=60
 QUIET=0
-PROXY=()
 HOST=""
 PORT=""
 
@@ -18,10 +14,6 @@ while [ $# -gt 0 ]; do
     -t)
       TIMEOUT="$2"
       shift 2
-      ;;
-    --proxy=*)
-      PROXY=("--proxy" "${1#*=}")
-      shift
       ;;
     --)
       shift
@@ -37,18 +29,22 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "$QUIET" -ne 1 ]; then
-  echo "Esperando hasta $TIMEOUT segundos para $HOST:$PORT..."
+  echo "Esperando hasta $TIMEOUT segundos por $HOST:$PORT..."
 fi
 
-for i in $(seq "$TIMEOUT"); do
-  if nc -z "${PROXY[@]}" "$HOST" "$PORT" >/dev/null 2>&1; then
+i=0
+while [ $i -lt "$TIMEOUT" ]; do
+  nc -z "$HOST" "$PORT" >/dev/null 2>&1
+  if [ $? -eq 0 ]; then
     if [ "$QUIET" -ne 1 ]; then
-      echo "$HOST:$PORT está listo!"
+      echo "$HOST:$PORT está listo"
     fi
     exec "$@"
+    exit 0
   fi
+  i=$((i+1))
   sleep 1
 done
 
-echo "Tiempo de espera agotado para $HOST:$PORT" >&2
+echo "❌ Tiempo de espera agotado para $HOST:$PORT" >&2
 exit 1
