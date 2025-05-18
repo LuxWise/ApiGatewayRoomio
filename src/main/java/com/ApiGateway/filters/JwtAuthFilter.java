@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 
-@Component
+@Component("JwtAuthFilter")
 public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Config> {
 
     @Value("${jwt.secret}")
@@ -27,12 +27,15 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
 
     public JwtAuthFilter() {
         super(Config.class);
+        System.out.println("✅ JwtAuthFilter registrado en el contexto");
     }
 
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+
+            System.out.println("➡️ JwtAuthFilter interceptó: " + request.getPath());
 
             // 1. Excluir rutas públicas
             if (isPublicRoute(request)) {
@@ -75,7 +78,7 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
     }
 
     private Claims validateAndGetClaims(String token) {
-        SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        SecretKey key = Keys.hmacShaKeyFor(java.util.Base64.getDecoder().decode(secret));
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

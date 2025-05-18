@@ -5,15 +5,13 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM openjdk:17-jdk-slim
+FROM amazoncorretto:17-alpine3.21-jdk
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y netcat && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update && apk add --no-cache netcat-openbsd
 
 COPY --from=build /app/target/*.jar app.jar
 COPY wait-for-it.sh .
 RUN chmod +x wait-for-it.sh
 
-ENTRYPOINT ["bash", "./wait-for-it.sh", "rabbitmq:5672", "--", "java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "./wait-for-it.sh", "rabbitmq:5672", "--", "java", "-jar", "app.jar"]

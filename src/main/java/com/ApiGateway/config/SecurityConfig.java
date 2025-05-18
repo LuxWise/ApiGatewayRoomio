@@ -14,12 +14,7 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/api/auth/**").permitAll()
-                        .anyExchange().authenticated()
-                )
-                .formLogin(ServerHttpSecurity.FormLoginSpec::disable) // Opcional: Deshabilitar login form
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable) // Opcional: Deshabilitar basic auth
+                .authorizeExchange(exchanges -> exchanges.anyExchange().permitAll())
                 .build();
     }
 }
