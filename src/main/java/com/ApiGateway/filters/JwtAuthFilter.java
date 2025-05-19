@@ -13,10 +13,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import reactor.core.publisher.Mono;
-
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 import javax.crypto.SecretKey;
 
 @Component("JwtAuthFilter")
@@ -69,8 +66,12 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
         }
 
         if ("GET".equals(method)) {
-            return path.equals("/api/hotel") ||
-                    path.equals("/api/hotel/rooms");
+
+            if (path.contains("/api/hotel/rooms")) {
+                return true;
+            }
+
+            return path.equals("/api/hotel");
         }
 
         return false;
@@ -95,7 +96,8 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
     private ServerHttpRequest addHeaders(ServerWebExchange exchange, Claims claims) {
         return exchange.getRequest().mutate()
                 .header("X-User-ID", claims.getSubject())
-                .header("X-User-Roles", claims.get("roles", String.class))
+                .header("X-User-Mail", claims.get("email", String.class))
+                .header("X-User-Roles", claims.get("role", String.class))
                 .build();
     }
 
