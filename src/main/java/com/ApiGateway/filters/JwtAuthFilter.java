@@ -15,6 +15,8 @@ import io.jsonwebtoken.security.Keys;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import javax.crypto.SecretKey;
 
 @Component("JwtAuthFilter")
@@ -37,23 +39,17 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
 
             System.out.println("➡️ JwtAuthFilter interceptó: " + request.getPath());
 
-            // 1. Excluir rutas públicas
             if (isPublicRoute(request)) {
-                System.out.println("Ruta pública, no se requiere autenticación: " + request.getPath());
                 return chain.filter(exchange);
             }
 
-            // 2. Extraer y validar token
             String token = extractToken(request.getHeaders());
             if (token == null) {
                 return unauthorizedResponse(exchange, "Token no proporcionado");
             }
 
             try {
-                // 3. Validar y extraer claims
                 Claims claims = validateAndGetClaims(token);
-
-                // 4. Agregar headers para downstream services
                 ServerHttpRequest modifiedRequest = addHeaders(exchange, claims);
 
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
@@ -66,9 +62,19 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
 
     private boolean isPublicRoute(ServerHttpRequest request) {
         String path = request.getPath().toString();
-        return path.startsWith("/api/auth") || path.contains("/public");
-    }
+        String method = request.getMethod().toString();
 
+        if (path.startsWith("/api/auth") || path.contains("/public")) {
+            return true;
+        }
+
+        if ("GET".equals(method)) {
+            return path.equals("/api/hotel") ||
+                    path.equals("/api/hotel/rooms");
+        }
+
+        return false;
+    }
     private String extractToken(HttpHeaders headers) {
         String authHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
